@@ -56,38 +56,67 @@ public class ChatServer extends WebSocketServer {
     }
 
     @Override
+    public void onStart() {
+        System.out.println("server started!");
+        setConnectionLostTimeout(100);
+    }
+
+    /**
+     * 新的socket连接时调用
+     *
+     * @param conn      新连接的对象
+     * @param handshake
+     */
+    @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
 //    conn.send("Welcome to the server!"); //This method sends a message to the new client
 //    broadcast("new connection: " + handshake
 //        .getResourceDescriptor()); //This method sends a message to all clients connected
-        System.out.println(
-                conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!");
+        System.out.println(conn + " connected!");
     }
 
-    @Override
-    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-//    broadcast(conn + " has left the room!");
-        System.out.println(conn + " has left the room!");
-    }
-
+    /**
+     * 接收到消息
+     *
+     * @param conn
+     * @param message 字符串消息
+     */
     @Override
     public void onMessage(WebSocket conn, String message) {
         broadcast(message);
         System.out.println(conn + ": " + message);
     }
 
+    /**
+     * 接收到消息
+     *
+     * @param conn
+     * @param message 字节消息
+     */
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
         broadcast(message.array());
         System.out.println(conn + ": " + message);
     }
 
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
+        ex.printStackTrace();
+        System.out.println("error->" + conn + ": " + ex.getMessage());
+    }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+//    broadcast(conn + " has left the room!");
+
+        System.out.println(conn + " disconnected!");
+    }
 
     public static void main(String[] args) throws InterruptedException, IOException {
         int port = 8887;
         ChatServer s = new ChatServer(port);
         s.start();
-        System.out.println("ChatServer started on port: " + s.getPort());
+        System.out.println("server started on port: " + s.getPort());
         BufferedReader sysin = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             String in = sysin.readLine();
@@ -97,17 +126,5 @@ public class ChatServer extends WebSocketServer {
                 break;
             }
         }
-    }
-
-    @Override
-    public void onError(WebSocket conn, Exception ex) {
-        ex.printStackTrace();
-    }
-
-    @Override
-    public void onStart() {
-        System.out.println("Server started!");
-        setConnectionLostTimeout(0);
-        setConnectionLostTimeout(100);
     }
 }
