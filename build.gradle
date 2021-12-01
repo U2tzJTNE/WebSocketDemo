@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group 'com.u2tzjtne'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+}
